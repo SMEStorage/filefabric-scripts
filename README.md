@@ -2,7 +2,9 @@
 
 Repository holding scripts useful to File Fabric customers. 
 
-All scripts here are to be used at your own risk. 
+The information in this document is provided on an as-is basis. You use it at your own risk. 
+Storage Made Easy accepts no responsibility for errors or omissions, nor do we have any obligation to provide support for implementing or maintaining the backup script and procedure described here. 
+Furthermore, we do not warrant that the design presented here is appropriate for your requirements.
 
 ## Features
 
