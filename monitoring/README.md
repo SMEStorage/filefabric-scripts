@@ -15,8 +15,6 @@ The script files can be selectively downloaded via wget/curl into your File Fabr
 ## Running
 
 ### sme_mariadb_repl_check
-
-Accepts the follwoing flags:
     -w <number of seconds>   --- seconds behind Master for DB replication to issue a warning
     -c <number of seconds>   --- seconds behind Master for DB replication to issue a critical 
     -u <mariadb username>    --- if you are using a different user than the default SME db user
