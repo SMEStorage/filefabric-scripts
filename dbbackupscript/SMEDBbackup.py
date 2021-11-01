@@ -11,6 +11,8 @@ import time
 import logging
 import smtplib
 import argparse
+import os
+import sys
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 
@@ -20,16 +22,19 @@ keepDays = 14
 backupDir = '/root/dbBackups/'
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-o", "--output", help="Output Directory (default to /root/dbBackups)")
+parser.add_argument("-o", "--output", help="Output Directory (default to /root/dbBackups)", default=backupDir)
 parser.add_argument("-r", "--replicamode", help="Enable Replica backup mode")
 args = parser.parse_args()
 
-if ( len(args.output) > 0 ):
-	backupDir = args.output		
 
+backupDir = args.output
 
 if not ( backupDir.endswith("/") ):
 	backupDir += "/"
+
+if not (os.path.isdir(backupDir) ):
+	print "Backup location is not valid"
+	sys.exit(1)
 	
 #print(backupDir)
 #print(args.replicamode)
@@ -143,3 +148,4 @@ else:
 	stopstartService("start","crond")
 
 sendEmail()
+
