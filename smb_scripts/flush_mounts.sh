@@ -12,6 +12,7 @@
 ##                                        ##
 ############################################
 nas="0"
+user="0"
 confirm="n"
 
 # write out log files to the location below
@@ -23,17 +24,20 @@ datecmd="date -Iseconds"
 # program will accept two arguments: -n and -h
 #	-n is required and is the name of the nas on which you are looking to flush mounts
 #	-h is used for help command to show the arguments needed
-while getopts "n:h" opt; do
+while getopts "n:u:h" opt; do
 	case ${opt} in
 	n) nas=$OPTARG
 	;;
+	u) user=$OPTARG
+	;;
 	h)
 		echo "Script to unmount existing CIFS shares on the SME System"
-		echo -e "-n <nas name> \t -- The name of the nas you are looking to umount existing shares on"
+		echo -e "-n <nas name> \t\t\t -- The name of the nas you are looking to umount existing shares on"
+		echo -e "-u <username to umount> \t -- The name of the user you are looking to umount existing shares on"
 		exit 1
 	;;
 	\? )
-		echo "Usage: $0 -n <nas name>"
+		echo "Usage: $0 -n <nas name> -u <username> "
 		exit 1
 	;;
 	: )
@@ -43,16 +47,28 @@ while getopts "n:h" opt; do
 	esac
 done
 
-	if [ ${nas} ==  "0" ]; then
+	if [ ${nas} ==  "0" ] && [  ${user} == "0" ]; then
 		# in case the user doesn't specify a nas location, we will alert them and exit
-		echo "Please enter your NAS device's name"
+		echo "Please enter your NAS device's name or Username"
 		exit 0
 	fi
 
 	# For the users and our logs we will grab the list of all the shares mounted for that nas device, as well as the mount paths for those shares
-    mounts=`mount | grep -ie "//${nas}" -ie '\\\\'${nas}| grep -i cifs | sed s/.*on\ //g | sed s/\ type.*//g | sort | uniq`
-    shares=`mount | grep -ie "//${nas}" -ie '\\\\'${nas} | grep -i cifs | sed s/\ on.*//g | sort | uniq`
+	if [ ${nas} != "0" ] &&  [ ${user} != "0" ]; then
+    		mounts=`mount | grep -ie "//${nas}" -ie '\\\\'${nas}| grep -i cifs | grep -i username\=${user} | sed s/.*on\ //g | sed s/\ type.*//g | sort | uniq`
+    		shares=`mount | grep -ie "//${nas}" -ie '\\\\'${nas} | grep -i cifs | grep -i username\=${user} |  awk '{split($6,s,","); print s[5] " @ " $1 " ; "}'` 
+	fi
 
+	if [ ${nas} != "0" ] && [ ${user} == "0" ]; then
+    		mounts=`mount | grep -ie "//${nas}" -ie '\\\\'${nas}| grep -i cifs | sed s/.*on\ //g | sed s/\ type.*//g | sort | uniq`
+    		shares=`mount | grep -ie "//${nas}" -ie '\\\\'${nas} | grep -i cifs |  awk '{split($6,s,","); print s[5] " @ " $1 " ; "}'`
+	fi
+
+	if [ ${user} != "0" ] && [ ${nas} == "0" ]; then
+    		mounts=`mount | grep -i cifs |  grep -i username\=${user} | sed s/.*on\ //g | sed s/\ type.*//g | sort | uniq`
+    		shares=`mount | grep -i cifs |  grep -i username\=${user}  | awk '{split($6,s,","); print s[5] " @ " $1 " ; "}'`
+	
+	fi
 
 
 	# Prompt the user to make share the shares associated with this nas are in fact the ones they want to umount
